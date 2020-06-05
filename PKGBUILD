@@ -1,7 +1,7 @@
 # Maintainer: Drew DeVault <sir@cmpwn.com>
 pkgname=mako-git
 _pkgname=mako
-pkgver=r430.bf6d462
+pkgver=1.4.1.r0.ad97299
 pkgrel=1
 license=('MIT')
 pkgdesc='Lightweight notification daemon for Wayland'
@@ -14,19 +14,25 @@ depends=(
 optdepends=("jq: support for 'makoctl menu'")
 arch=("x86_64")
 url='http://mako-project.org'
-source=("${pkgname%-*}::git+https://github.com/emersion/mako.git")
-sha1sums=('SKIP')
+source=("${pkgname%-*}::git+git://github.com/emersion/mako.git?signed#tag=v1.4.1")
+sha256sums=('SKIP')
+validpgpkeys=(
+	'34FF9526CFEF0E97A340E2E40FDE7BE0E88F5E48' # Simon "emersion" Ser
+)
 provides=('mako')
 conflicts=('mako')
 
 pkgver() {
 	cd "$_pkgname"
-	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+	printf "%s" "$(git describe --long | sed 's/\([^-]*-\)g/r\1/;s/-/./g' | sed -E 's/^v//g')"
 }
 
 build() {
 	cd "$_pkgname"
-	meson --prefix=/usr . build
+	meson \
+		--prefix /usr \
+		--buildtype release \
+		. build
 	ninja -C build
 }
 
